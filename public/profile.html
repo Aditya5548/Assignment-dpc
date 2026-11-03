@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | MMB Consultant</title>
+  <link rel="stylesheet" href="/css/profile.css">
+
+  <script src="/js/config.js" defer></script>
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/profile.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="/profile.html">MMB Consultant</a>
+    <button id="logoutButton" class="logout-button" type="button">Logout</button>
+  </header>
+
+  <main class="container">
+    <div class="page-heading">
+      <h1>My Profile</h1>
+    </div>
+
+    <p id="profileMessage" class="message" role="alert" hidden></p>
+
+    <section id="profileCard" class="profile-card" hidden>
+      <div class="profile-heading">
+        <div id="profileInitial" class="profile-initial">U</div>
+        <div>
+          <h2 id="profileName">Loading...</h2>
+          <p id="profileEmail">Loading...</p>
+        </div>
+      </div>
+
+      <h3>Account Details</h3>
+
+      <div class="details">
+        <div class="detail-item">
+          <span>Account ID</span>
+          <strong id="profileId">Loading...</strong>
+        </div>
+        <div class="detail-item">
+          <span>Full Name</span>
+          <strong id="profileNameDetail">Loading...</strong>
+        </div>
+        <div class="detail-item">
+          <span>Email Address</span>
+          <strong id="profileEmailDetail">Loading...</strong>
+        </div>
+        <div class="detail-item">
+          <span>Phone Number</span>
+          <strong id="profilePhone">Loading...</strong>
+        </div>
+        <div class="detail-item">
+          <span>Registered On</span>
+          <strong id="profileCreatedAt">Loading...</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
