@@ -1,24 +1,25 @@
-
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
 import { connectDB } from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
-const PORT = process.env.PORT;
-app.use(cors())
+const PORT = process.env.PORT || 5000;
+
+app.use(cors({ origin: true, credentials: true }));
 app.use(helmet());
 app.use(morgan("dev"));
-
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static("public"));
 
 app.use("/api/auth", authRoutes);
 
-app.get("/", (req ,res) => {
+app.get("/", (req, res) => {
   res.sendFile("login.html", { root: "public" });
 });
 

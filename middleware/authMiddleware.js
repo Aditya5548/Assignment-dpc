@@ -1,30 +1,32 @@
-
 import jwt from "jsonwebtoken";
 
 export default function authMiddleware(req, res, next) {
-  const authorization = req.headers.authorization;
-  if (!authorization || !authorization.startsWith("Bearer ")) {
+  const token = req.cookies?.authToken;
+
+  if (!token) {
     return res.status(401).json({
       success: false,
+      code: "TOKEN_MISSING",
       message: "Token is required."
     });
   }
-  const token = authorization.split(" ")[1];
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.id;
     next();
-  } 
-  catch (error) {
+  } catch (error) {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({
         success: false,
+        code: "TOKEN_EXPIRED",
         message: "Token has expired. Please login again."
       });
     }
 
     return res.status(401).json({
       success: false,
+      code: "TOKEN_INVALID",
       message: "Invalid token. Please login again."
     });
   }

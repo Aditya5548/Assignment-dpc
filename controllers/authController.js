@@ -1,7 +1,27 @@
-
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+
+const COOKIE_NAME = "authToken";
+const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+function getCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: COOKIE_MAX_AGE
+  };
+}
+
+function getClearCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/"
+  };
+}
 
 export async function signup(req, res, next) {
   try {
@@ -82,7 +102,6 @@ export async function signup(req, res, next) {
         phone: user.phone
       }
     });
-
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
@@ -108,13 +127,12 @@ export async function login(req, res, next) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email: cleanEmail })
-      .select("+passwordHash");
+    const user = await User.findOne({ email: cleanEmail }).select("+passwordHash");
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password."
+        message: "Email not registered"
       });
     }
 
@@ -123,7 +141,7 @@ export async function login(req, res, next) {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password."
+        message: "Invalid password."
       });
     }
 
@@ -133,21 +151,29 @@ export async function login(req, res, next) {
       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
+    res.cookie(COOKIE_NAME, token, getCookieOptions());
+
     return res.status(200).json({
       success: true,
-      message: "Login successful.",
-      token
+      message: "Login successful."
     });
-
   } catch (error) {
     next(error);
   }
 }
 
+export async function logout(req, res) {
+  res.clearCookie(COOKIE_NAME, getClearCookieOptions());
+
+  return res.status(200).json({
+    success: true,
+    message: "Logout successful."
+  });
+}
+
 export async function getProfile(req, res, next) {
   try {
-    const user = await User.findById(req.userId)
-      .select("fullName email phone createdAt");
+    const user = await User.findById(req.userId).select("fullName email phone createdAt");
 
     if (!user) {
       return res.status(404).json({
@@ -161,7 +187,6 @@ export async function getProfile(req, res, next) {
       message: "Profile fetched successfully.",
       data: user
     });
-
   } catch (error) {
     next(error);
   }

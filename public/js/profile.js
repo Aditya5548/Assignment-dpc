@@ -2,32 +2,52 @@ const profileCard = document.querySelector("#profileCard");
 const profileMessage = document.querySelector("#profileMessage");
 const logoutButton = document.querySelector("#logoutButton");
 
-async function loadProfile() {
-  if (!getAuthToken()) {
-    redirectToLogin();
-    return;
+function setMessage(element, message, type = "error") {
+  element.textContent = message;
+  element.className = "message " + type;
+  element.hidden = !message;
+}
+
+function formatDate(value) {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) {
+    return "Not available";
   }
 
-  try {
-    const response = await apiRequest("/api/auth/profile");
-    const user = response.data;
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
 
-    if (!user) {
+async function loadProfile() {
+  try {
+    const response = await fetch(window.APP_CONFIG.API_BASE_URL + "/api/auth/profile", {
+      credentials: "include",
+      headers: {
+        "x-api-key": window.APP_CONFIG.API_KEY
+      }
+    });
+
+    if (response.status === 401) {
+      window.location.replace("/login.html");
+      return;
+    }
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(result.message || "The request could not be completed.");
+    }
+
+    if (!result.data) {
       throw new Error("Profile details not found.");
     }
 
-    showProfile(user);
+    showProfile(result.data);
   } catch (error) {
-    const tokenErrors = [
-      "TOKEN_EXPIRED",
-      "TOKEN_INVALID",
-      "TOKEN_MISSING",
-      "TOKEN_USER_NOT_FOUND"
-    ];
-
-    if (!tokenErrors.includes(error.code)) {
-      setMessage(profileMessage, error.message);
-    }
+    setMessage(profileMessage, error.message || "Unable to load profile.");
   }
 }
 
@@ -47,9 +67,18 @@ function showProfile(user) {
   profileCard.hidden = false;
 }
 
-function logout() {
-  clearAuthToken();
-  window.location.replace("/login.html");
+async function logout() {
+  try {
+    await fetch(window.APP_CONFIG.API_BASE_URL + "/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "x-api-key": window.APP_CONFIG.API_KEY
+      }
+    });
+  } finally {
+    window.location.replace("/login.html");
+  }
 }
 
 logoutButton.addEventListener("click", logout);
