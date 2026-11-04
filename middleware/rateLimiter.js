@@ -15,6 +15,12 @@ const createRateLimiter = (limit, windowMs, message) => {
   });
 };
 
+export const apiRateLimiter = createRateLimiter(
+  100,
+  15 * 60 * 1000,
+  "Too many API requests. Please try again after 15 minutes."
+);
+
 export const loginRateLimiter = createRateLimiter(
   10,
   15 * 60 * 1000,

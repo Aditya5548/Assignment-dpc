@@ -6,7 +6,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { connectDB } from "./config/database.js";
 import apiKeyMiddleware from "./middleware/apiKeyMiddleware.js";
+import { apiRateLimiter } from './middleware/rateLimiter.js'
 import authRoutes from "./routes/authRoutes.js";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -17,7 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 
-app.use("/api", apiKeyMiddleware);
+app.use("/api", apiRateLimiter , apiKeyMiddleware);
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
