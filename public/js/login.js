@@ -36,9 +36,11 @@ loginForm.addEventListener("submit", async (event) => {
     }
 
     window.location.replace("/profile.html");
-  } catch (error) {
+  } 
+  catch (error) {
     setMessage(loginMessage, error.message || "Unable to log in. Please try again.");
-  } finally {
+  } 
+  finally {
     loginButton.disabled = false;
     loginButton.textContent = "Login";
   }
